@@ -14,15 +14,16 @@ depends          "magic_shell"
 depends          "hopsmonitor"
 depends          'hive2'
 
-recipe           "install", "Installs Spark binaries"
+recipe           "hadoop_spark::install", "Installs Spark binaries"
 #link:<a target='_blank' href='http://%host%:8080/'>Launch the WebUI for the Spark Master</a>
-recipe           "master", "Starts a Spark master"
+recipe           "hadoop_spark::master", "Starts a Spark master"
 #link:<a target='_blank' href='http://%host%:8081/'>Launch the WebUI for the Spark Slave %host%</a>
-recipe           "worker", "Starts a Spark worker"
-recipe           "yarn", "Creates directories for yarn. Run on only one machine."
-recipe           "default", "Install spark binaries only."
-recipe           "libs", "Install spark jars to nodemanager hosts"
-recipe           "historyserver", "Installs/starts the Spark historyserver"
+recipe           "hadoop_spark::worker", "Starts a Spark worker"
+recipe           "hadoop_spark::yarn", "Creates directories for yarn. Run on only one machine."
+recipe           "hadoop_spark::certs", "Creates directories for yarn. Run on only one machine."
+recipe           "hadoop_spark::default", "Install spark binaries only."
+recipe           "hadoop_spark::libs", "Install spark jars to nodemanager hosts"
+recipe           "hadoop_spark::historyserver", "Installs/starts the Spark historyserver"
 
 attribute "hadoop_spark/user",
           :description => "Username to run spark master/worker as",
