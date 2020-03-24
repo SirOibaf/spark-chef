@@ -2,7 +2,7 @@ home = node['hops']['hdfs']['user_home']
 private_ip=my_private_ip()
 
 # Create logs dir.
-directory "#{node['hadoop_spark']['home']}/logs" do  
+directory "#{node['hadoop_spark']['home']}/logs" do
   owner node['hadoop_spark']['user']
   group node['hadoop_spark']['group']
   mode "770"
@@ -48,33 +48,12 @@ if (File.exist?("#{node['kagent']['certs_dir']}/cacerts.jks"))
   end
 
   bash "set_userspark_storage_type" do
-    user node['hops']['hdfs']['user']  
-    group node['hops']['group'] 
+    user node['hops']['hdfs']['user']
+    group node['hops']['group']
     code <<-EOH
       #{node['hops']['bin_dir']}/hdfs storagepolicies -setStoragePolicy -path #{home}/#{node['hadoop_spark']['user']} -policy DB
     EOH
     action :run
-  end
-
-  hops_hdfs_directory "#{home}/#{node['hadoop_spark']['user']}/eventlog" do
-    action :create_as_superuser
-    owner node['hadoop_spark']['user']
-    group node['hops']['group']
-    mode "1775"
-  end
-
-  hops_hdfs_directory "#{home}/#{node['hadoop_spark']['user']}/spark-warehouse" do
-    action :create_as_superuser
-    owner node['hadoop_spark']['user']
-    group node['hops']['group']
-    mode "1775"
-  end
-
-  hops_hdfs_directory "#{home}/#{node['hadoop_spark']['user']}/share/lib" do
-    action :create_as_superuser
-    owner node['hadoop_spark']['user']
-    group node['hops']['group']
-    mode "1775"
   end
 
   hopsworks_user=node['hops']['hdfs']['user']
@@ -102,7 +81,7 @@ if (File.exist?("#{node['kagent']['certs_dir']}/cacerts.jks"))
     dest "/user/#{node['hadoop_spark']['user']}/#{hopsVerification}"
     action :replace_as_superuser
   end
-  
+
   hopsExamplesSpark=File.basename(node['hadoop_spark']['hopsexamples_spark']['url'])
   remote_file "#{Chef::Config['file_cache_path']}/#{hopsExamplesSpark}" do
     source node['hadoop_spark']['hopsexamples_spark']['url']
@@ -171,31 +150,6 @@ if (File.exist?("#{node['kagent']['certs_dir']}/cacerts.jks"))
     dest "/user/#{node['hadoop_spark']['user']}/#{hopsExamplesFeaturestoreUtilPy}"
   end
 
-  hops_hdfs_directory "#{node['hadoop_spark']['base_dir']}/conf/metrics.properties"  do
-    action :replace_as_superuser
-    owner node['hadoop_spark']['user']
-    group node['hadoop_spark']['group']
-    mode "1755"
-    dest "/user/#{node['hadoop_spark']['user']}/metrics.properties"
-  end
-
-
-  hops_hdfs_directory "#{node['hadoop_spark']['home']}/conf/metrics.properties" do
-    action :replace_as_superuser
-    owner node['hadoop_spark']['user']
-    group node['hops']['group']
-    mode "1755"
-    dest "/user/#{node['hops']['hdfs']['user']}/metrics.properties"
-  end
-
-  hops_hdfs_directory "#{node['hadoop_spark']['home']}/conf/log4j.properties" do
-    action :replace_as_superuser
-    owner node['hadoop_spark']['user']
-    group node['hops']['group']
-    mode "1755"
-    dest "/user/#{node['hadoop_spark']['user']}/log4j.properties"
-  end
-
   encyption_password = "adminpw"
   if node.attribute?('hopsworks') && node['hopsworks'].attribute?('master') && node['hopsworks']['master'].attribute?('password')
     encyption_password = node['hopsworks']['master']['password']
@@ -207,7 +161,7 @@ if (File.exist?("#{node['kagent']['certs_dir']}/cacerts.jks"))
     code <<-EOH
         cp -f #{node['kagent']['certs_dir']}/cacerts.jks /tmp
         chmod 755 /tmp/cacerts.jks
-        keytool -importkeystore -srckeystore /tmp/cacerts.jks -destkeystore /tmp/cacerts.p12 -srcstoretype jks -deststoretype pkcs12 -noprompt -srcstorepass #{encyption_password} -deststorepass #{encyption_password} 
+        keytool -importkeystore -srckeystore /tmp/cacerts.jks -destkeystore /tmp/cacerts.p12 -srcstoretype jks -deststoretype pkcs12 -noprompt -srcstorepass #{encyption_password} -deststorepass #{encyption_password}
         openssl pkcs12 -in /tmp/cacerts.p12 -out /tmp/#{cacerts_pem_filename} -passin pass:#{encyption_password}
         chmod 444 /tmp/#{cacerts_pem_filename}
     EOH
@@ -354,18 +308,7 @@ when "debian"
  end
 
 when "rhel"
-  package "R" do
-    action :install
-  end
-  package "R-devel" do
-    action :install
-  end
-  package "libcurl-devel" do
-    action :install
-  end
-  package "openssl-devel" do
-    action :install
-  end
+  package ["R", "R-devel", "libcurl-devel", "openssl-devel"]
 end
 
 
